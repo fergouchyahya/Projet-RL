@@ -1,23 +1,20 @@
 package fr.polytech.mnia.agent;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import fr.polytech.mnia.Evironnement;
 import de.prob.statespace.State;
 import de.prob.statespace.Transition;
 
+import java.util.*;
+
+/**
+ * Implémentation de Value Iteration pour MDP déterministe.
+ * Agent totalement générique pour SimpleRL, YouTube et TicTacToe.
+ */
 public class ValueIterationAgent implements Agent {
 
-    private final double gamma;
-    private final double theta;
+    private final double gamma; // Taux d'actualisation
+    private final double theta; // Seuil de convergence
     private final Map<State, Double> V = new HashMap<>();
-    private final Set<State> visited = new HashSet<>();
-
     private final List<Double> rewards = new ArrayList<>();
     private final List<String> actionsChosen = new ArrayList<>();
 
@@ -33,22 +30,21 @@ public class ValueIterationAgent implements Agent {
 
         int steps = 0;
         boolean converged;
+
         do {
             converged = true;
-            for (State s : visited) {
+            for (State s : V.keySet()) {
                 if (env.isTerminal(s)) {
                     V.put(s, env.getReward(s));
                     continue;
                 }
                 double maxQ = Double.NEGATIVE_INFINITY;
-                for (Transition t : env.getActions()) {
-                    if (t.getSource().equals(s)) {
-                        State next = t.getDestination();
-                        double reward = env.getReward(next);
-                        double q = reward + gamma * V.getOrDefault(next, 0.0);
-                        if (q > maxQ) {
-                            maxQ = q;
-                        }
+                for (Transition t : env.getActions(s)) {
+                    State next = t.getDestination().explore();
+                    double reward = env.getReward(next);
+                    double q = reward + gamma * V.getOrDefault(next, 0.0);
+                    if (q > maxQ) {
+                        maxQ = q;
                     }
                 }
                 double delta = Math.abs(maxQ - V.getOrDefault(s, 0.0));
@@ -57,40 +53,31 @@ public class ValueIterationAgent implements Agent {
                 }
                 V.put(s, maxQ);
             }
-
             steps++;
             if (steps >= nbSteps)
-                break; // 🔥 Limiter le nombre d'itérations
-
-            if (verbose) {
-                System.out.println("Value Iteration Step: " + steps);
-            }
+                break;
         } while (!converged);
 
-        // Pour analyse : remplir rewards et actions simulées
-        for (State s : visited) {
+        // Enregistrement de récompenses pour analyse
+        for (State s : V.keySet()) {
             rewards.add(V.getOrDefault(s, 0.0));
-            actionsChosen.add("(virtual action)");
+            actionsChosen.add("(policy_step)"); // Placeholder
         }
     }
 
     private void explore(State state, Evironnement env) {
-        if (visited.contains(state))
+        if (V.containsKey(state))
             return;
-        visited.add(state);
-        for (Transition t : env.getActions()) {
-            if (t.getSource().equals(state)) {
-                explore(t.getDestination(), env);
-            }
+        V.put(state, 0.0);
+        for (Transition t : env.getActions(state)) {
+            explore(t.getDestination().explore(), env);
         }
     }
 
-    @Override
     public List<Double> getRewards() {
         return rewards;
     }
 
-    @Override
     public List<String> getActionsChosen() {
         return actionsChosen;
     }

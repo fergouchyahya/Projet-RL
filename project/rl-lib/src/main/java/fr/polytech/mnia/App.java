@@ -4,58 +4,52 @@ import fr.polytech.mnia.agent.*;
 import fr.polytech.mnia.reward.*;
 import fr.polytech.mnia.analysis.AgentAnalyzer;
 import fr.polytech.mnia.graph.GraphGenerator;
+import fr.polytech.mnia.tictactoe.TicTacToeEpisodeManager;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 /**
- * Classe principale du projet.
- * Permet à l'utilisateur de :
- * - Choisir l'environnement (SimpleRL, YouTube, TicTacToe)
- * - Choisir les agents de renforcement à entraîner
- * - Définir les paramètres d'entraînement (nombre d'étapes, affichage)
- * - Lancer l'entraînement, l'analyse, et la génération automatique des graphes
+ * Classe principale pour lancer les expériences RL
+ * sur SimpleRL, YouTube et TicTacToe.
  */
 public class App {
-
     public static void main(String[] args) throws Exception {
         Scanner scanner = new Scanner(System.in);
 
-        // === 1. Choix de l'environnement ===
-        System.out.println("=== Sélectionnez l'environnement ===");
+        // === 1. Sélectionner l'environnement ===
+        System.out.println("=== Choisissez l'environnement ===");
         System.out.println("[1] SimpleRL");
         System.out.println("[2] YouTube");
         System.out.println("[3] TicTacToe");
 
         int envChoice = scanner.nextInt();
-        scanner.nextLine(); // vider le buffer après nextInt
+        scanner.nextLine();
 
         Runner runner;
         Evironnement env;
         String rewardVariable;
         RewardFunction rewardFunction;
 
-        // Initialisation en fonction du choix utilisateur
         if (envChoice == 1) {
             runner = new SimpleRunner();
             rewardFunction = new SimpleRewardFunction();
-            rewardVariable = "res"; // Variable de récompense dans SimpleRL
+            rewardVariable = "res";
         } else if (envChoice == 2) {
             runner = new YouTubeRunner();
             rewardFunction = new YouTubeRewardFunction();
-            rewardVariable = "step"; // Pas de duration directement accessible
+            rewardVariable = "step";
         } else {
             runner = new TicTacToeRunner();
             rewardFunction = new TicTacToeRewardFunction();
-            rewardVariable = "some_variable"; // À adapter selon TicTacToe.mch
+            rewardVariable = "square"; // Pas utilisé directement, placeholder
         }
 
-        // Création de l'environnement
         env = new Evironnement(runner, rewardFunction, rewardVariable);
 
-        // === 2. Choix des agents à entraîner ===
-        System.out.println("\n=== Sélectionnez les agents (ex: 1 2 3) ===");
+        // === 2. Choisir les agents ===
+        System.out.println("\n=== Choisissez les agents (ex: 1 4 6) ===");
         System.out.println("[1] Epsilon Greedy");
         System.out.println("[2] UCB");
         System.out.println("[3] Bandit Gradient");
@@ -67,11 +61,10 @@ public class App {
         String[] choices = line.split("\\s+");
         List<Agent> agents = new ArrayList<>();
 
-        // Configuration de chaque agent sélectionné
         for (String choice : choices) {
             switch (choice) {
                 case "1":
-                    System.out.print("Entrez epsilon pour Epsilon Greedy : ");
+                    System.out.print("Epsilon pour Epsilon Greedy : ");
                     double epsilon = Double.parseDouble(scanner.nextLine().replace(",", "."));
                     agents.add(new EpsilonGreedyAgent(epsilon));
                     break;
@@ -79,54 +72,66 @@ public class App {
                     agents.add(new UCBAgent());
                     break;
                 case "3":
-                    System.out.print("Entrez alpha pour Bandit Gradient : ");
+                    System.out.print("Alpha pour Bandit Gradient : ");
                     double alpha = Double.parseDouble(scanner.nextLine().replace(",", "."));
                     agents.add(new BanditGradientAgent(alpha));
                     break;
                 case "4":
-                    System.out.print("Entrez gamma pour Value Iteration : ");
+                    System.out.print("Gamma pour Value Iteration : ");
                     double gammaV = Double.parseDouble(scanner.nextLine().replace(",", "."));
-                    System.out.print("Entrez theta pour Value Iteration : ");
+                    System.out.print("Theta pour Value Iteration : ");
                     double thetaV = Double.parseDouble(scanner.nextLine().replace(",", "."));
                     agents.add(new ValueIterationAgent(gammaV, thetaV));
                     break;
                 case "5":
-                    System.out.print("Entrez gamma pour Policy Iteration : ");
+                    System.out.print("Gamma pour Policy Iteration : ");
                     double gammaP = Double.parseDouble(scanner.nextLine().replace(",", "."));
                     agents.add(new PolicyIterationAgent(gammaP));
                     break;
                 case "6":
-                    System.out.print("Entrez alpha pour Q-Learning : ");
+                    System.out.print("Alpha pour Q-Learning : ");
                     double alphaQ = Double.parseDouble(scanner.nextLine().replace(",", "."));
-                    System.out.print("Entrez gamma pour Q-Learning : ");
+                    System.out.print("Gamma pour Q-Learning : ");
                     double gammaQ = Double.parseDouble(scanner.nextLine().replace(",", "."));
-                    System.out.print("Entrez epsilon pour Q-Learning : ");
+                    System.out.print("Epsilon pour Q-Learning : ");
                     double epsilonQ = Double.parseDouble(scanner.nextLine().replace(",", "."));
                     agents.add(new QLearningAgent(alphaQ, gammaQ, epsilonQ));
                     break;
                 default:
-                    System.out.println("Choix d'agent non reconnu : " + choice);
+                    System.out.println("Choix non reconnu : " + choice);
             }
         }
 
-        // === 3. Paramètres d'entraînement ===
+        // === 3. Paramètres de l'entraînement ===
         System.out.print("\nEntrez le nombre d'étapes d'entraînement : ");
         int nbSteps = scanner.nextInt();
-        scanner.nextLine(); // vider le buffer
+        scanner.nextLine();
 
         System.out.println("\n=== Mode d'affichage ===");
-        System.out.println("[1] Affichage détaillé (chaque action)");
-        System.out.println("[2] Mode silencieux (résultats uniquement)");
+        System.out.println("[1] Affichage détaillé");
+        System.out.println("[2] Mode silencieux");
 
         int affichageMode = scanner.nextInt();
         scanner.nextLine();
         boolean verbose = (affichageMode == 1);
 
-        // === 4. Entraînement et analyse des agents ===
+        // Nettoyage du dossier de graphes
+        GraphGenerator.clearGraphsFolder();
+
+        // === 4. Entraîner et analyser chaque agent ===
         int agentNumber = 1;
         for (Agent agent : agents) {
-            System.out.println("\n=== Entraînement de l'agent " + agentNumber + " ===\n");
-            agent.train(env, nbSteps, verbose);
+            System.out.println("\n=== Entraînement de l'agent " + agentNumber + " ===");
+
+            if (envChoice == 3 && agent instanceof QLearningAgent) {
+                // Pour TicTacToe et Q-Learning : entraînement par épisodes
+                TicTacToeEpisodeManager manager = new TicTacToeEpisodeManager(env);
+                for (int i = 0; i < nbSteps; i++) {
+                    manager.playEpisode(true, verbose);
+                }
+            } else {
+                agent.train(env, nbSteps, verbose);
+            }
 
             System.out.println("\n=== Analyse de l'agent " + agentNumber + " ===\n");
             AgentAnalyzer.analyze(agent);

@@ -1,16 +1,15 @@
 package fr.polytech.mnia.agent;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
 import fr.polytech.mnia.Evironnement;
-import fr.polytech.mnia.reward.YouTubeRewardFunction;
 import de.prob.statespace.State;
 import de.prob.statespace.Transition;
 
+import java.util.*;
+
+/**
+ * Implémentation de Q-Learning pour MDP déterministe.
+ * Agent totalement générique pour SimpleRL, YouTube et TicTacToe.
+ */
 public class QLearningAgent implements Agent {
 
     private final double alpha;
@@ -18,7 +17,6 @@ public class QLearningAgent implements Agent {
     private final double epsilon;
     private final Map<State, Map<Transition, Double>> Q = new HashMap<>();
     private final Random random = new Random();
-
     private final List<Double> rewards = new ArrayList<>();
     private final List<String> actionsChosen = new ArrayList<>();
 
@@ -37,33 +35,27 @@ public class QLearningAgent implements Agent {
                 List<Transition> actions = env.getActions(state);
 
                 if (actions.isEmpty())
-                    break; // Sécurité si aucun mouvement possible
+                    break;
 
-                Transition action = chooseAction(state, actions);
+                Transition chosen = chooseAction(state, actions);
 
-                if (env.getRewardFunction() instanceof YouTubeRewardFunction) {
-                    ((YouTubeRewardFunction) env.getRewardFunction()).updateChosenVideo(action);
-                }
+                env.runAction(chosen);
+                State nextState = env.getState();
 
-                State nextState = action.getDestination();
                 double reward = env.getReward(nextState);
 
-                double oldQ = Q.getOrDefault(state, new HashMap<>())
-                        .getOrDefault(action, 0.0);
+                double oldQ = Q.getOrDefault(state, new HashMap<>()).getOrDefault(chosen, 0.0);
                 double nextMaxQ = maxQ(nextState);
                 double newQ = oldQ + alpha * (reward + gamma * nextMaxQ - oldQ);
 
-                Q.computeIfAbsent(state, k -> new HashMap<>()).put(action, newQ);
+                Q.computeIfAbsent(state, k -> new HashMap<>()).put(chosen, newQ);
 
-                // 🔥 Stocker pour l'analyse
                 rewards.add(reward);
-                actionsChosen.add(action.getParameterPredicate());
+                actionsChosen.add(chosen.getParameterPredicate());
 
-                // 🔥 Afficher si verbose
                 if (verbose) {
-                    System.out.println("Action : " + action.getParameterPredicate());
-                    System.out.println("État ID : " + nextState.getId());
-                    System.out.println("Reward : " + reward);
+                    System.out.println("Action : " + chosen.getParameterPredicate());
+                    System.out.println("Etat ID : " + nextState.getId());
                     System.out.println("------");
                 }
 
@@ -93,16 +85,16 @@ public class QLearningAgent implements Agent {
     }
 
     private double maxQ(State s) {
-        return Q.getOrDefault(s, new HashMap<>()).values()
-                .stream().mapToDouble(v -> v).max().orElse(0.0);
+        return Q.getOrDefault(s, new HashMap<>())
+                .values().stream()
+                .mapToDouble(v -> v)
+                .max().orElse(0.0);
     }
 
-    @Override
     public List<Double> getRewards() {
         return rewards;
     }
 
-    @Override
     public List<String> getActionsChosen() {
         return actionsChosen;
     }

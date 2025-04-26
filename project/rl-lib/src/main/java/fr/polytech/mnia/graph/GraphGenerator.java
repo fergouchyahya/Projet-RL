@@ -16,25 +16,49 @@ import java.util.Map;
 import java.util.HashMap;
 
 /**
- * Classe utilitaire pour générer et sauvegarder des graphes
- * (récompenses cumulées, moyennes et histogrammes des actions).
- * 
+ * Classe utilitaire pour générer et sauvegarder des graphes :
+ * - Récompense cumulée
+ * - Récompense moyenne
+ * - Distribution des actions
  * Utilise la bibliothèque JFreeChart.
  */
 public class GraphGenerator {
 
-    private static final String OUTPUT_DIR = "graphs/"; // Répertoire de sauvegarde des graphes
+    private static final String OUTPUT_DIR = "graphs/"; // Dossier pour enregistrer les graphes
+    private static boolean cleaned = false; // Pour ne nettoyer qu'une seule fois par exécution
 
     /**
-     * Génère deux graphiques :
-     * - Récompense cumulée en fonction du temps
-     * - Récompense moyenne en fonction du temps
-     * et les sauvegarde en fichiers PNG.
-     *
-     * @param rewards   Liste des récompenses collectées pendant l'entraînement
-     * @param agentName Nom de l'agent (utilisé pour nommer les fichiers)
+     * Nettoie le dossier graphs/ en supprimant tous les anciens fichiers.
+     */
+    public static void clearGraphsFolder() throws Exception {
+        File dir = new File(OUTPUT_DIR);
+        if (dir.exists()) {
+            File[] files = dir.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    if (f.isFile()) {
+                        f.delete();
+                    }
+                }
+            }
+        } else {
+            dir.mkdirs();
+        }
+        System.out.println("[Graph] Dossier de graphes nettoyé.");
+        cleaned = true;
+    }
+
+    /**
+     * Crée deux graphes :
+     * - Récompense cumulée
+     * - Récompense moyenne
+     * 
+     * @param rewards   Liste des récompenses au fil du temps
+     * @param agentName Nom de l'agent (pour nommer les fichiers)
      */
     public static void createLineChartRewards(List<Double> rewards, String agentName) throws Exception {
+        checkAndClean();
+
         XYSeries seriesCumulative = new XYSeries("Cumulative Reward");
         XYSeries seriesAverage = new XYSeries("Average Reward");
 
@@ -48,7 +72,7 @@ public class GraphGenerator {
         XYSeriesCollection datasetCumulative = new XYSeriesCollection(seriesCumulative);
         XYSeriesCollection datasetAverage = new XYSeriesCollection(seriesAverage);
 
-        // Créer et sauvegarder le graphe de récompense cumulée
+        // Graphe récompense cumulée
         JFreeChart chartCumulative = ChartFactory.createXYLineChart(
                 "Cumulative Reward - " + agentName,
                 "Step",
@@ -56,10 +80,9 @@ public class GraphGenerator {
                 datasetCumulative,
                 PlotOrientation.VERTICAL,
                 false, true, false);
-
         saveChart(chartCumulative, agentName + "_cumulative");
 
-        // Créer et sauvegarder le graphe de récompense moyenne
+        // Graphe récompense moyenne
         JFreeChart chartAverage = ChartFactory.createXYLineChart(
                 "Average Reward - " + agentName,
                 "Step",
@@ -67,17 +90,18 @@ public class GraphGenerator {
                 datasetAverage,
                 PlotOrientation.VERTICAL,
                 false, true, false);
-
         saveChart(chartAverage, agentName + "_average");
     }
 
     /**
-     * Génère un histogramme montrant la distribution des actions choisies.
-     *
-     * @param actions   Liste des actions choisies pendant l'entraînement
-     * @param agentName Nom de l'agent (utilisé pour nommer les fichiers)
+     * Crée un histogramme de la distribution des actions choisies.
+     * 
+     * @param actions   Liste des actions prises pendant l'entraînement
+     * @param agentName Nom de l'agent
      */
     public static void createHistogramActions(List<String> actions, String agentName) throws Exception {
+        checkAndClean();
+
         Map<String, Integer> counts = new HashMap<>();
         for (String action : actions) {
             counts.put(action, counts.getOrDefault(action, 0) + 1);
@@ -95,39 +119,21 @@ public class GraphGenerator {
                 dataset,
                 PlotOrientation.VERTICAL,
                 false, true, false);
-
         saveChart(barChart, agentName + "_actions");
     }
 
     /**
-     * Sauvegarde un graphique JFreeChart sous forme de fichier PNG.
-     *
+     * Sauvegarde un graphique au format PNG dans le dossier graphs/.
+     * 
      * @param chart Le graphique à sauvegarder
      * @param name  Le nom de base du fichier
      */
-    private static boolean cleaned = false; // Indique si le dossier a été nettoyé
-
     private static void saveChart(JFreeChart chart, String name) throws Exception {
         File dir = new File(OUTPUT_DIR);
-
-        // Nettoyage au premier appel seulement
-        if (!cleaned) {
-            if (dir.exists()) {
-                File[] files = dir.listFiles();
-                if (files != null) {
-                    for (File f : files) {
-                        if (f.isFile()) {
-                            f.delete();
-                        }
-                    }
-                }
-            }
-            dir.mkdirs(); // Assure que le dossier existe
-            cleaned = true;
-            System.out.println("[Graph] Le dossier de graphes a été nettoyé.");
+        if (!dir.exists()) {
+            dir.mkdirs();
         }
 
-        // Création et sauvegarde du nouveau graphe
         String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String filename = OUTPUT_DIR + name + "_" + timestamp + ".png";
 
@@ -135,4 +141,12 @@ public class GraphGenerator {
         System.out.println("[Graph] Saved : " + filename);
     }
 
+    /**
+     * Vérifie si le dossier doit être nettoyé avant de sauvegarder.
+     */
+    private static void checkAndClean() throws Exception {
+        if (!cleaned) {
+            clearGraphsFolder();
+        }
+    }
 }
