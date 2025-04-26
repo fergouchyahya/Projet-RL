@@ -4,6 +4,7 @@ fr/polytech/mnia/MyProb$1.class
 fr/polytech/mnia/agent/Agent.class
 fr/polytech/mnia/Runner.class
 fr/polytech/mnia/agent/UCBAgent.class
+fr/polytech/mnia/agent/QLearningTicTacToeAgent.class
 fr/polytech/mnia/agent/QLearningAgent.class
 fr/polytech/mnia/reward/YouTubeRewardFunction.class
 fr/polytech/mnia/agent/EpsilonGreedyAgent.class
@@ -15,6 +16,7 @@ fr/polytech/mnia/agent/PolicyIterationAgent.class
 fr/polytech/mnia/TicTacToeRunner.class
 fr/polytech/mnia/App.class
 fr/polytech/mnia/SchedulerRunner.class
+fr/polytech/mnia/tictactoe/TicTacToeEpisodeManager.class
 fr/polytech/mnia/reward/RewardFunction.class
 fr/polytech/mnia/agent/ValueIterationAgent.class
 fr/polytech/mnia/SimpleRunner.class

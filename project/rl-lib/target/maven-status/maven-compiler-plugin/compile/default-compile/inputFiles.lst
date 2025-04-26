@@ -3,6 +3,7 @@
 /home/yahya/doc_school/school2/MN/Projet/Projet-RL/project/rl-lib/src/main/java/fr/polytech/mnia/graph/GraphGenerator.java
 /home/yahya/doc_school/school2/MN/Projet/Projet-RL/project/rl-lib/src/main/java/fr/polytech/mnia/Runner.java
 /home/yahya/doc_school/school2/MN/Projet/Projet-RL/project/rl-lib/src/main/java/fr/polytech/mnia/YouTubeRunner.java
+/home/yahya/doc_school/school2/MN/Projet/Projet-RL/project/rl-lib/src/main/java/fr/polytech/mnia/tictactoe/TicTacToeEpisodeManager.java
 /home/yahya/doc_school/school2/MN/Projet/Projet-RL/project/rl-lib/src/main/java/fr/polytech/mnia/TicTacToeRunner.java
 /home/yahya/doc_school/school2/MN/Projet/Projet-RL/project/rl-lib/src/main/java/fr/polytech/mnia/analysis/AgentAnalyzer.java
 /home/yahya/doc_school/school2/MN/Projet/Projet-RL/project/rl-lib/src/main/java/fr/polytech/mnia/SchedulerRunner.java
@@ -15,6 +16,7 @@
 /home/yahya/doc_school/school2/MN/Projet/Projet-RL/project/rl-lib/src/main/java/fr/polytech/mnia/reward/TicTacToeRewardFunction.java
 /home/yahya/doc_school/school2/MN/Projet/Projet-RL/project/rl-lib/src/main/java/fr/polytech/mnia/SimpleRunner.java
 /home/yahya/doc_school/school2/MN/Projet/Projet-RL/project/rl-lib/src/main/java/fr/polytech/mnia/MyProb.java
+/home/yahya/doc_school/school2/MN/Projet/Projet-RL/project/rl-lib/src/main/java/fr/polytech/mnia/agent/QLearningTicTacToeAgent.java
 /home/yahya/doc_school/school2/MN/Projet/Projet-RL/project/rl-lib/src/main/java/fr/polytech/mnia/agent/BanditGradientAgent.java
 /home/yahya/doc_school/school2/MN/Projet/Projet-RL/project/rl-lib/src/main/java/fr/polytech/mnia/agent/PolicyIterationAgent.java
 /home/yahya/doc_school/school2/MN/Projet/Projet-RL/project/rl-lib/src/main/java/fr/polytech/mnia/App.java

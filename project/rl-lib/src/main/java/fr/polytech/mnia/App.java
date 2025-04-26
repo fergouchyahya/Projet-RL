@@ -123,14 +123,19 @@ public class App {
         for (Agent agent : agents) {
             System.out.println("\n=== Entraînement de l'agent " + agentNumber + " ===");
 
-            if (envChoice == 3 && agent instanceof QLearningAgent) {
-                // Pour TicTacToe et Q-Learning : entraînement par épisodes
-                TicTacToeEpisodeManager manager = new TicTacToeEpisodeManager(env);
-                for (int i = 0; i < nbSteps; i++) {
-                    manager.playEpisode(true, verbose);
-                }
+            if (envChoice == 3 && agent instanceof QLearningTicTacToeAgent) {
+                // Pour TicTacToe et Q-Learning par épisode
+                System.out.print("Entrez le nombre d'épisodes d'entraînement : ");
+                int nbEpisodes = scanner.nextInt();
+                scanner.nextLine();
+
+                agent.train(env, nbEpisodes, verbose);
             } else {
-                agent.train(env, nbSteps, verbose);
+                System.out.print("Entrez le nombre d'étapes d'entraînement : ");
+                int nbStep = scanner.nextInt();
+                scanner.nextLine();
+
+                agent.train(env, nbStep, verbose);
             }
 
             System.out.println("\n=== Analyse de l'agent " + agentNumber + " ===\n");

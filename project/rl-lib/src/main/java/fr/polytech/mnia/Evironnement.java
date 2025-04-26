@@ -125,5 +125,19 @@ public class Evironnement {
     public RewardFunction getRewardFunction() {
         return rewardFunction;
     }
+
+    public void reset() {
+        State state = animator.getStateSpace().getRoot();
+        Transition setup = state.findTransition(Transition.SETUP_CONSTANTS_NAME);
+        if (setup != null) {
+            state = setup.getDestination();
+        }
+        Transition initialise = state.findTransition(Transition.INITIALISE_MACHINE_NAME);
+        if (initialise != null) {
+            state = initialise.getDestination();
+        }
+        this.state = state.exploreIfNeeded();
+    }
+
 }
 // === Fin de la classe Evironnement ===

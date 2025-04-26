@@ -88,7 +88,7 @@ public class TicTacToeEpisodeManager {
     /**
      * Affiche la grille actuelle de TicTacToe.
      */
-    private void prettyPrintGrid() {
+    public void prettyPrintGrid() {
         String input = env.getState().eval("square").toString();
         String[][] board = { { " ", " ", " " }, { " ", " ", " " }, { " ", " ", " " } };
 
