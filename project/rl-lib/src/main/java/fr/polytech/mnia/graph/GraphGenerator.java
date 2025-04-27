@@ -16,11 +16,21 @@ import java.util.Map;
 import java.util.HashMap;
 
 /**
- * Classe utilitaire pour générer et sauvegarder des graphes :
- * - Récompense cumulée
- * - Récompense moyenne
- * - Distribution des actions
+ * GraphGenerator.java
+ *
+ * Classe utilitaire pour générer et sauvegarder automatiquement des graphes
+ * illustrant les résultats d'entraînement d'un agent.
+ *
+ * Fonctionnalités :
+ * - Générer des graphes de récompense cumulée et moyenne
+ * - Générer un histogramme de la distribution des actions choisies
+ * - Gérer automatiquement le dossier d'enregistrement
+ * 
  * Utilise la bibliothèque JFreeChart.
+ * 
+ * Exemple d'utilisation :
+ * GraphGenerator.createLineChartRewards(rewards, "MyAgent");
+ * GraphGenerator.createHistogramActions(actions, "MyAgent");
  */
 public class GraphGenerator {
 
@@ -28,7 +38,10 @@ public class GraphGenerator {
     private static boolean cleaned = false; // Pour ne nettoyer qu'une seule fois par exécution
 
     /**
-     * Nettoie le dossier graphs/ en supprimant tous les anciens fichiers.
+     * Nettoie le dossier "graphs/" en supprimant tous les anciens fichiers PNG.
+     *
+     * Exemple :
+     * GraphGenerator.clearGraphsFolder();
      */
     public static void clearGraphsFolder() throws Exception {
         File dir = new File(OUTPUT_DIR);
@@ -49,12 +62,15 @@ public class GraphGenerator {
     }
 
     /**
-     * Crée deux graphes :
-     * - Récompense cumulée
-     * - Récompense moyenne
-     * 
-     * @param rewards   Liste des récompenses au fil du temps
-     * @param agentName Nom de l'agent (pour nommer les fichiers)
+     * Crée deux graphes (récompense cumulée et moyenne) à partir de la liste des
+     * récompenses.
+     *
+     * @param rewards   liste des récompenses obtenues étape par étape
+     * @param agentName nom de l'agent utilisé pour nommer les fichiers
+     *
+     *                  Exemple :
+     *                  GraphGenerator.createLineChartRewards(rewards,
+     *                  "BanditAgent");
      */
     public static void createLineChartRewards(List<Double> rewards, String agentName) throws Exception {
         checkAndClean();
@@ -72,7 +88,7 @@ public class GraphGenerator {
         XYSeriesCollection datasetCumulative = new XYSeriesCollection(seriesCumulative);
         XYSeriesCollection datasetAverage = new XYSeriesCollection(seriesAverage);
 
-        // Graphe récompense cumulée
+        // Graphe de la récompense cumulée
         JFreeChart chartCumulative = ChartFactory.createXYLineChart(
                 "Cumulative Reward - " + agentName,
                 "Step",
@@ -82,7 +98,7 @@ public class GraphGenerator {
                 false, true, false);
         saveChart(chartCumulative, agentName + "_cumulative");
 
-        // Graphe récompense moyenne
+        // Graphe de la récompense moyenne
         JFreeChart chartAverage = ChartFactory.createXYLineChart(
                 "Average Reward - " + agentName,
                 "Step",
@@ -94,10 +110,13 @@ public class GraphGenerator {
     }
 
     /**
-     * Crée un histogramme de la distribution des actions choisies.
-     * 
-     * @param actions   Liste des actions prises pendant l'entraînement
-     * @param agentName Nom de l'agent
+     * Crée un histogramme représentant la distribution des actions choisies.
+     *
+     * @param actions   liste des actions exécutées
+     * @param agentName nom de l'agent utilisé pour nommer le fichier
+     *
+     *                  Exemple :
+     *                  GraphGenerator.createHistogramActions(actions, "UCBAgent");
      */
     public static void createHistogramActions(List<String> actions, String agentName) throws Exception {
         checkAndClean();
@@ -123,10 +142,13 @@ public class GraphGenerator {
     }
 
     /**
-     * Sauvegarde un graphique au format PNG dans le dossier graphs/.
-     * 
-     * @param chart Le graphique à sauvegarder
-     * @param name  Le nom de base du fichier
+     * Sauvegarde un graphique sous format PNG dans le dossier "graphs/".
+     *
+     * @param chart graphique JFreeChart à sauvegarder
+     * @param name  nom de base du fichier sans extension
+     *
+     *              Exemple :
+     *              GraphGenerator.saveChart(monChart, "rewards_graph");
      */
     private static void saveChart(JFreeChart chart, String name) throws Exception {
         File dir = new File(OUTPUT_DIR);
@@ -142,7 +164,12 @@ public class GraphGenerator {
     }
 
     /**
-     * Vérifie si le dossier doit être nettoyé avant de sauvegarder.
+     * Vérifie si le dossier "graphs/" doit être nettoyé avant de sauvegarder de
+     * nouveaux fichiers.
+     * Cette opération est faite une seule fois par exécution.
+     *
+     * Exemple :
+     * GraphGenerator.checkAndClean();
      */
     private static void checkAndClean() throws Exception {
         if (!cleaned) {

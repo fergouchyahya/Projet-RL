@@ -3,10 +3,30 @@ package fr.polytech.mnia.reward;
 import de.prob.statespace.State;
 
 /**
- * Fonction de récompense pour l'environnement SimpleRL.
+ * SimpleRewardFunction.java
+ *
+ * Fonction de récompense spécifique pour l'environnement SimpleRL.
+ * 
+ * Caractéristiques :
+ * - Retourne 1.0 si l'utilisateur fait un bon choix (OK), sinon 0.0.
+ * - Chaque action aboutit directement à un état terminal.
+ *
+ * Exemple d'utilisation :
+ * RewardFunction rewardFunction = new SimpleRewardFunction();
+ * double r = rewardFunction.getReward(state);
+ * boolean terminal = rewardFunction.isTerminal(state);
  */
 public class SimpleRewardFunction implements RewardFunction {
 
+    /**
+     * Calcule la récompense associée à l'état donné.
+     *
+     * @param state l'état à évaluer
+     * @return 1.0 si l'attribut "res" vaut "OK", sinon 0.0
+     *
+     *         Exemple :
+     *         double reward = rewardFunction.getReward(state);
+     */
     @Override
     public double getReward(State state) {
         String res = state.eval("res").toString();
@@ -17,10 +37,17 @@ public class SimpleRewardFunction implements RewardFunction {
         }
     }
 
+    /**
+     * Détermine si l'état est un état terminal.
+     *
+     * @param state l'état à vérifier
+     * @return toujours true dans SimpleRL (chaque action aboutit à un état final)
+     *
+     *         Exemple :
+     *         boolean isTerminal = rewardFunction.isTerminal(state);
+     */
     @Override
     public boolean isTerminal(State state) {
-        // Dans SimpleRL, chaque action mène directement à un résultat : un état
-        // terminal
         return true;
     }
 }

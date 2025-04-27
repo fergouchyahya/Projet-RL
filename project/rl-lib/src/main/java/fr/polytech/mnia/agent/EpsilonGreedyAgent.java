@@ -12,8 +12,18 @@ import de.prob.statespace.State;
 import de.prob.statespace.Transition;
 
 /**
- * Implémentation d'un agent Epsilon-Greedy pour l'apprentissage par
- * renforcement.
+ * EpsilonGreedyAgent.java
+ *
+ * Implémentation d'un agent d'apprentissage par renforcement utilisant la
+ * stratégie Epsilon-Greedy.
+ * 
+ * L'agent choisit une action au hasard avec probabilité ε (exploration),
+ * ou sélectionne la meilleure action connue avec probabilité 1-ε
+ * (exploitation).
+ * 
+ * Exemple d'utilisation :
+ * Agent agent = new EpsilonGreedyAgent(0.1);
+ * agent.train(env, 1000, true);
  */
 public class EpsilonGreedyAgent implements Agent {
 
@@ -24,10 +34,29 @@ public class EpsilonGreedyAgent implements Agent {
     private final List<Double> rewards = new ArrayList<>();
     private final List<String> actionsChosen = new ArrayList<>();
 
+    /**
+     * Construit un agent Epsilon-Greedy avec une probabilité ε d'exploration.
+     *
+     * @param epsilon valeur de ε entre 0 et 1 (ex: 0.1 pour 10% d'exploration)
+     *
+     *                Exemple :
+     *                EpsilonGreedyAgent agent = new EpsilonGreedyAgent(0.1);
+     */
     public EpsilonGreedyAgent(double epsilon) {
         this.epsilon = epsilon;
     }
 
+    /**
+     * Entraîne l'agent dans un environnement donné pendant un nombre fixé d'étapes.
+     *
+     * @param env     l'environnement d'apprentissage (instance de Evironnement)
+     * @param nbSteps le nombre d'étapes d'entraînement
+     * @param verbose true pour affichage détaillé, false pour exécution silencieuse
+     * @throws Exception en cas d'erreur pendant une transition
+     *
+     *                   Exemple :
+     *                   agent.train(env, 500, true);
+     */
     @Override
     public void train(Evironnement env, int nbSteps, boolean verbose) throws Exception {
         for (int episode = 0; episode < nbSteps; episode++) {
@@ -36,8 +65,10 @@ public class EpsilonGreedyAgent implements Agent {
 
             Transition chosen;
             if (random.nextDouble() < epsilon) {
+                // Exploration
                 chosen = actions.get(random.nextInt(actions.size()));
             } else {
+                // Exploitation
                 chosen = bestAction(actions);
             }
 
@@ -68,6 +99,16 @@ public class EpsilonGreedyAgent implements Agent {
         }
     }
 
+    /**
+     * Sélectionne la meilleure action selon les estimations de récompense
+     * accumulées.
+     *
+     * @param actions liste des actions possibles
+     * @return l'action avec la meilleure valeur estimée
+     *
+     *         Exemple :
+     *         Transition meilleureAction = agent.bestAction(actionsDisponibles);
+     */
     private Transition bestAction(List<Transition> actions) {
         Transition best = actions.get(0);
         double bestValue = estimates.getOrDefault(best.getName() + best.getParameterPredicate(), 0.0);
@@ -81,10 +122,29 @@ public class EpsilonGreedyAgent implements Agent {
         return best;
     }
 
+    /**
+     * Retourne la liste des récompenses obtenues au cours de l'entraînement.
+     *
+     * @return liste de récompenses (Double)
+     *
+     *         Exemple :
+     *         List<Double> recompenses = agent.getRewards();
+     */
+    @Override
     public List<Double> getRewards() {
         return rewards;
     }
 
+    /**
+     * Retourne la liste des actions choisies par l'agent au cours de
+     * l'entraînement.
+     *
+     * @return liste d'actions choisies (String)
+     *
+     *         Exemple :
+     *         List<String> actions = agent.getActionsChosen();
+     */
+    @Override
     public List<String> getActionsChosen() {
         return actionsChosen;
     }

@@ -8,19 +8,29 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Classe utilitaire pour analyser les performances d'un agent :
- * - Récompense cumulée
- * - Récompense moyenne
- * - Distribution des actions choisies
- * - Evolution de la récompense au cours du temps
- * - Génération automatique de graphes
+ * AgentAnalyzer.java
+ *
+ * Classe utilitaire pour analyser les performances d'un agent après son
+ * entraînement.
+ * 
+ * Fonctionnalités :
+ * - Calcul des récompenses cumulées et moyennes
+ * - Analyse de la distribution des actions choisies
+ * - Affichage de l'évolution des récompenses
+ * - Génération automatique de graphes statistiques
+ * 
+ * Exemple d'utilisation :
+ * AgentAnalyzer.analyze(agent);
  */
 public class AgentAnalyzer {
 
     /**
-     * Analyse les résultats d'un agent après entraînement.
+     * Analyse les résultats d'un agent après son entraînement.
      *
-     * @param agent L'agent à analyser
+     * @param agent l'agent à analyser (doit implémenter l'interface Agent)
+     *
+     *              Exemple :
+     *              AgentAnalyzer.analyze(monAgent);
      */
     public static void analyze(Agent agent) {
         List<Double> rewards = agent.getRewards();
@@ -38,6 +48,9 @@ public class AgentAnalyzer {
         System.out.println("\n==============================================");
         System.out.println("=== Analyse de l'agent : " + agent.getClass().getSimpleName() + " ===");
         System.out.println("==============================================\n");
+
+        System.out.println("\nActions jouées par l'agent :");
+        System.out.println(agent.getActionsChosen());
 
         System.out.println("Nombre total d'étapes réalisées : " + rewards.size());
         System.out.printf("Récompense cumulée : %.2f\n", totalReward);
@@ -57,7 +70,7 @@ public class AgentAnalyzer {
             System.out.printf("%-30s %-10d %.2f%%\n", entry.getKey(), entry.getValue(), pourcentage);
         }
 
-        // === 3. Evolution de la récompense cumulée/moyenne ===
+        // === 3. Evolution de la moyenne des récompenses ===
         System.out.println("\n--- Evolution de la moyenne des récompenses ---");
 
         int stepsToShow = 10; // Nombre de points d'échantillonnage

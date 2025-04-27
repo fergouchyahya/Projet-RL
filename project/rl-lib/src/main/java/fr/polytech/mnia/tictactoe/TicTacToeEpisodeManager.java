@@ -8,26 +8,50 @@ import java.util.List;
 import java.util.Random;
 
 /**
+ * TicTacToeEpisodeManager.java
+ *
  * Classe utilitaire pour gérer un épisode complet de TicTacToe.
+ * 
+ * Caractéristiques :
  * - Le joueur 0 est contrôlé par l'agent
- * - Le joueur 1 joue aléatoirement
+ * - Le joueur 1 joue de manière aléatoire
+ * 
+ * Utilisé pour simuler et observer le déroulement de parties de TicTacToe.
+ * 
+ * Exemple d'utilisation :
+ * TicTacToeEpisodeManager manager = new TicTacToeEpisodeManager(env);
+ * manager.playEpisode(true, true);
  */
 public class TicTacToeEpisodeManager {
 
     private final Evironnement env;
     private final Random random = new Random();
 
+    /**
+     * Construit un gestionnaire d'épisodes de TicTacToe pour un environnement
+     * donné.
+     *
+     * @param env environnement TicTacToe
+     *
+     *            Exemple :
+     *            TicTacToeEpisodeManager manager = new
+     *            TicTacToeEpisodeManager(env);
+     */
     public TicTacToeEpisodeManager(Evironnement env) {
         this.env = env;
     }
 
     /**
-     * Lance un épisode complet.
-     * 
-     * @param agentIsPlaying Si true ➔ l'agent joue comme joueur 0, sinon il observe
-     *                       seulement
-     * @param verbose        Si true ➔ affichage détaillé
-     * @throws Exception
+     * Lance un épisode complet de TicTacToe.
+     *
+     * @param agentIsPlaying true si l'agent doit jouer (comme joueur 0), false pour
+     *                       observer seulement
+     * @param verbose        true pour affichage détaillé après chaque coup, false
+     *                       sinon
+     * @throws Exception en cas d'erreur pendant l'exécution
+     *
+     *                   Exemple :
+     *                   manager.playEpisode(true, true);
      */
     public void playEpisode(boolean agentIsPlaying, boolean verbose) throws Exception {
         State state = env.getInitialState();
@@ -40,9 +64,8 @@ public class TicTacToeEpisodeManager {
 
             if (turn.equals("0")) {
                 if (agentIsPlaying) {
-                    // C'est à l'agent de jouer
                     List<Transition> actions = env.getActions();
-                    Transition chosen = chooseBestAction(actions); // à implémenter selon agent
+                    Transition chosen = chooseBestAction(actions); // Par défaut : aléatoire
                     env.runAction(chosen);
 
                     if (verbose) {
@@ -51,7 +74,6 @@ public class TicTacToeEpisodeManager {
                     }
                 }
             } else {
-                // C'est au joueur 1 de jouer (aléatoire)
                 List<Transition> actions = env.getActions();
                 Transition randomMove = actions.get(random.nextInt(actions.size()));
                 env.runAction(randomMove);
@@ -63,7 +85,7 @@ public class TicTacToeEpisodeManager {
                 }
             }
 
-            // Mise à jour
+            // Mise à jour des états
             state = env.getState();
             win0 = state.eval("win(0)").toString();
             win1 = state.eval("win(1)").toString();
@@ -78,15 +100,25 @@ public class TicTacToeEpisodeManager {
     }
 
     /**
-     * Méthode de choix de la meilleure action pour l'agent.
-     * Pour l'instant : au hasard (à améliorer pour Q-learning ou Policy).
+     * Choisit la meilleure action à réaliser pour le joueur 0.
+     * (Actuellement, le choix est fait aléatoirement parmi les actions
+     * disponibles.)
+     *
+     * @param actions liste des actions possibles
+     * @return action choisie
+     *
+     *         Exemple :
+     *         Transition choix = manager.chooseBestAction(actionsDisponibles);
      */
     private Transition chooseBestAction(List<Transition> actions) {
         return actions.get(random.nextInt(actions.size()));
     }
 
     /**
-     * Affiche la grille actuelle de TicTacToe.
+     * Affiche la grille actuelle de TicTacToe dans la console.
+     *
+     * Exemple :
+     * manager.prettyPrintGrid();
      */
     public void prettyPrintGrid() {
         String input = env.getState().eval("square").toString();
@@ -96,6 +128,8 @@ public class TicTacToeEpisodeManager {
         String[] entries = input.split(",");
 
         for (String entry : entries) {
+            if (entry.isEmpty())
+                continue;
             String[] parts = entry.split("↦");
             int row = Integer.parseInt(parts[0]) - 1;
             int col = Integer.parseInt(parts[1]) - 1;

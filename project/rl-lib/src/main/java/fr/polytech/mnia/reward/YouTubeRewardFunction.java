@@ -4,7 +4,20 @@ import de.prob.statespace.Transition;
 import de.prob.statespace.State;
 
 /**
- * Fonction de récompense pour l'environnement YouTube.
+ * YouTubeRewardFunction.java
+ *
+ * Fonction de récompense spécifique pour l'environnement YouTube.
+ * 
+ * Caractéristiques :
+ * - La récompense dépend de la vidéo choisie.
+ * - L'environnement n'a pas d'états terminaux (simule un flux infini de
+ * vidéos).
+ * 
+ * Exemple d'utilisation :
+ * RewardFunction rewardFunction = new YouTubeRewardFunction();
+ * rewardFunction.updateChosenVideo(transition);
+ * double r = rewardFunction.getReward(state);
+ * boolean terminal = rewardFunction.isTerminal(state);
  */
 public class YouTubeRewardFunction implements RewardFunction {
 
@@ -12,8 +25,11 @@ public class YouTubeRewardFunction implements RewardFunction {
 
     /**
      * Met à jour la dernière vidéo choisie à partir d'une transition effectuée.
-     * 
-     * @param t Transition choisie
+     *
+     * @param t transition effectuée (normalement "choose")
+     *
+     *          Exemple :
+     *          rewardFunction.updateChosenVideo(transition);
      */
     public void updateChosenVideo(Transition t) {
         if (t.getName().equals("choose")) {
@@ -24,13 +40,22 @@ public class YouTubeRewardFunction implements RewardFunction {
         }
     }
 
+    /**
+     * Calcule la récompense associée à la dernière vidéo choisie.
+     *
+     * @param state état courant (utilisé pour la compatibilité, mais seul
+     *              lastChosenVideo est utilisé)
+     * @return récompense entre 0 et 1 selon l'intérêt de la vidéo
+     *
+     *         Exemple :
+     *         double reward = rewardFunction.getReward(state);
+     */
     @Override
     public double getReward(State state) {
         if (lastChosenVideo == null) {
             return 0.0;
         }
 
-        // Récompenses selon la vidéo choisie
         switch (lastChosenVideo) {
             case "Gaming":
                 return 1.0;
@@ -45,9 +70,17 @@ public class YouTubeRewardFunction implements RewardFunction {
         }
     }
 
+    /**
+     * Indique si l'état est terminal.
+     *
+     * @param state état courant
+     * @return toujours false car YouTube modélise un flux infini
+     *
+     *         Exemple :
+     *         boolean terminal = rewardFunction.isTerminal(state);
+     */
     @Override
     public boolean isTerminal(State state) {
-        // L'environnement YouTube est infini par design : jamais terminal
         return false;
     }
 }
